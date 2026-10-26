@@ -87,7 +87,7 @@ export const FieldContextProvider = ({
           showLabel,
           position: fieldPosition,
           objectMetadataItem,
-          labelWidth: 90,
+          labelWidth: 180,
         }),
         useUpdateRecord:
           customUseUpdateOneObjectHook ?? useUpdateOneObjectMutation,
