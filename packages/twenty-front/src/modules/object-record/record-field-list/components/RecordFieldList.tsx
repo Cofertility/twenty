@@ -77,7 +77,7 @@ export const RecordFieldList = ({
               position: index,
               objectMetadataItem,
               showLabel: true,
-              labelWidth: 90,
+              labelWidth: 180,
             });
 
             const isFieldRestricted = restrictedFieldNames.includes(
