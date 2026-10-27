@@ -755,6 +755,17 @@ export class ConfigVariables {
 
   @ConfigVariablesMetadata({
     group: ConfigVariablesGroup.LOGIC_FUNCTION_CONFIG,
+    description:
+      'Base URL logic functions use to call the Twenty API. Defaults to SERVER_URL. Set it when SERVER_URL is not reachable from where functions run, for example behind an authenticating proxy.',
+    isEnvOnly: true,
+    type: ConfigVariableType.STRING,
+  })
+  @IsUrl({ require_tld: false, require_protocol: true })
+  @IsOptional()
+  LOGIC_FUNCTION_API_URL?: string;
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.LOGIC_FUNCTION_CONFIG,
     description: 'Throttle limit for logic function execution',
     type: ConfigVariableType.NUMBER,
   })
