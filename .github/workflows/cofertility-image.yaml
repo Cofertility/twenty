@@ -1,4 +1,5 @@
 # Cofertility fork: builds the patched Twenty image (linux/arm64) and pushes it to ECR.
+# The repo is public, so its run logs are too: the role ARN and ECR URL are secrets to keep the AWS account ID masked.
 # Note: upstream's push/PR-triggered workflows should be disabled in the fork's
 # Actions settings when Actions is enabled, so they don't run on fork pushes.
 name: Cofertility image
@@ -34,8 +35,9 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
         with:
-          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: us-west-2
+          mask-aws-account-id: true
 
       - name: Log in to Amazon ECR
         uses: aws-actions/amazon-ecr-login@03f1aad4c6c7ffd436567f42f9384779290529bd # v2.1.7
@@ -53,4 +55,4 @@ jobs:
           push: true
           build-args: |
             APP_VERSION=${{ inputs.tag }}
-          tags: ${{ vars.ECR_REPOSITORY_URL }}:${{ inputs.tag }}
+          tags: ${{ secrets.ECR_REPOSITORY_URL }}:${{ inputs.tag }}
