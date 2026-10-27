@@ -426,7 +426,10 @@ export class LogicFunctionExecutorService {
         : null,
     ]);
 
-    const baseUrl = cleanServerUrl(this.twentyConfigService.get('SERVER_URL'));
+    const baseUrl = cleanServerUrl(
+      this.twentyConfigService.get('LOGIC_FUNCTION_API_URL') ??
+        this.twentyConfigService.get('SERVER_URL'),
+    );
     const functionsBaseUrl = await this.buildFunctionsBaseUrl({
       workspaceId,
       flatApplication,
