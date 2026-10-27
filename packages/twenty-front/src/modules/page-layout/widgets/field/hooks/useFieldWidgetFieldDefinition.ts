@@ -32,7 +32,7 @@ export const useFieldWidgetFieldDefinition = (widget: PageLayoutWidget) => {
         position: 0,
         objectMetadataItem,
         showLabel: true,
-        labelWidth: 90,
+        labelWidth: 180,
       })
     : null;
 

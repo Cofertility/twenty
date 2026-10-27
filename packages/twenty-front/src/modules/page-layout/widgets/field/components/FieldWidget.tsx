@@ -103,7 +103,7 @@ export const FieldWidget = ({ widget }: FieldWidgetProps) => {
     position: 0,
     objectMetadataItem,
     showLabel: true,
-    labelWidth: 90,
+    labelWidth: 180,
   });
 
   const fieldDisplayMode = getFieldWidgetEffectiveDisplayMode(
