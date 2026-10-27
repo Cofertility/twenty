@@ -80,7 +80,7 @@ describe('createHostFetchEnforcingPolicy', () => {
 
     expect(fetchSpy).toHaveBeenCalledWith(
       'https://api.twenty.test/graphql',
-      expect.objectContaining({ method: 'POST', credentials: 'omit' }),
+      expect.objectContaining({ method: 'POST', credentials: 'same-origin' }),
     );
     expect(result.status).toBe(200);
     expect(result.body).toBe('response-body');
