@@ -1,0 +1,5 @@
+# Branches merged, in order, on top of the upstream tag by cofertility/release.sh.
+# cofertility/infra is always merged first and is not listed here.
+# Drop a branch once upstream has merged it.
+feat/cloudflare-access
+feat/wider-field-labels
