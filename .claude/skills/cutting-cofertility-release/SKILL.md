@@ -23,16 +23,17 @@ A release is an upstream tag plus `cofertility/infra` plus the branches in `cofe
    gh api repos/Cofertility/twenty/actions/workflows --paginate --jq '.workflows[] | select(.state=="active" and .path!=".github/workflows/cofertility-image.yaml") | .id' \
      | xargs -I{} gh api -X PUT repos/Cofertility/twenty/actions/workflows/{}/disable
    ```
-7. **Build the image.** The workflow needs the `ECR_REPOSITORY_URL` and `AWS_ROLE_ARN` repository secrets (`gh secret list -R Cofertility/twenty`). ECR tags are immutable, so take the next free `v<version>-cf.<n>`:
+7. **Build the image.** The workflow needs the `ECR_REPOSITORY_URL` and `AWS_ROLE_ARN` repository secrets (`gh secret list -R Cofertility/twenty`). ECR tags are immutable, so take the next free `v<version>-cofertility.<n>`:
    ```bash
    aws ecr list-images --repository-name cofertility/twenty --region us-west-2 --query 'imageIds[].imageTag'
-   gh workflow run cofertility-image.yaml -R Cofertility/twenty --ref cofertility/v<version> -f tag=v<version>-cf.<n>
+   gh workflow run cofertility-image.yaml -R Cofertility/twenty --ref cofertility/v<version> -f tag=v<version>-cofertility.<n>
    gh run watch -R Cofertility/twenty
    ```
 8. **Deploy, dev then prod, each after the user's go-ahead.** First run `git status` in cofertility-twenty: uncommitted tofu changes ride along with any apply, so ask the user about them before planning. Upgrade migrations run when the new container starts and can't be undone by reverting the tag, so snapshot first:
    ```bash
-   aws rds create-db-snapshot --db-instance-identifier twenty-<env>-postgres --db-snapshot-identifier twenty-<env>-pre-v<version>-cf<n>
+   aws rds create-db-snapshot --db-instance-identifier twenty-<env>-postgres --db-snapshot-identifier twenty-<env>-pre-v<version with dots as dashes>-cofertility-<n>
    ```
+   Snapshot names allow only letters, digits and hyphens, e.g. `twenty-dev-pre-v2-51-0-cofertility-1`.
    Set `twenty_image_tag` in `environments/<env>.tfvars`. If that env is still on the stock `twentycrm/twenty` image, the first switch also needs `twenty_image_repository` (`tofu -chdir=infra/tofu/shared output -raw ecr_repository_url`) and the `cf_access_*` values (the AUD comes from that env's Access application in the Cloudflare dashboard); see `infra/tofu/README.md`. Then `tofu init -reconfigure -backend-config=environments/<env>.backend.hcl`, `tofu plan -var-file=environments/<env>.tfvars`, show the plan, `tofu apply`. Check `aws logs tail /ecs/twenty-<env>` for upgrade errors and `Cloudflare Access sign-in rejected`, then sign in through Access.
 
 ## Common mistakes
@@ -42,6 +43,6 @@ A release is an upstream tag plus `cofertility/infra` plus the branches in `cofe
 | Taking the newest `twenty/v*` tag | Latest published release |
 | Testing in the release script's worktree | Release branch in the main checkout |
 | Checking workflows only before pushing | Check again after every push |
-| Reusing or guessing `-cf.1` | Next free tag in ECR |
+| Reusing or guessing `-cofertility.1` | Next free tag in ECR |
 | Applying `AUTH_PASSWORD_ENABLED=false` to an env on the stock image | Ship it in the same apply as the fork image and `cf_access_enabled = true`; otherwise nobody can sign in |
 | Deploying without a snapshot | Snapshot RDS first |

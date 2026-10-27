@@ -1,14 +1,13 @@
 # Cofertility fork: builds the patched Twenty image (linux/arm64) and pushes it to ECR.
 # The repo is public, so its run logs are too: the role ARN and ECR URL are secrets to keep the AWS account ID masked.
-# Note: upstream's push/PR-triggered workflows should be disabled in the fork's
-# Actions settings when Actions is enabled, so they don't run on fork pushes.
+# Upstream's workflows are disabled in the fork's Actions settings; only this one runs.
 name: Cofertility image
 
 on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Image tag, e.g. v2.51.0-cf.1'
+        description: 'Image tag, e.g. v2.51.0-cofertility.1'
         required: true
         type: string
 
@@ -16,21 +15,34 @@ permissions:
   id-token: write
   contents: read
 
+concurrency:
+  group: cofertility-image-${{ inputs.tag }}
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-24.04-arm
+    timeout-minutes: 60
     steps:
       - name: Validate tag
         env:
           TAG: ${{ inputs.tag }}
+          REF_NAME: ${{ github.ref_name }}
         run: |
-          if ! [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-cf\.[0-9]+$ ]]; then
-            echo "Tag '$TAG' must match vX.Y.Z-cf.N (e.g. v2.51.0-cf.1)" >&2
+          if ! [[ "$TAG" =~ ^v([0-9]+\.[0-9]+\.[0-9]+)-cofertility\.[0-9]+$ ]]; then
+            echo "Tag '$TAG' must match vX.Y.Z-cofertility.N (e.g. v2.51.0-cofertility.1)" >&2
+            exit 1
+          fi
+          expected_ref="cofertility/v${BASH_REMATCH[1]}"
+          if [[ "$REF_NAME" != "$expected_ref" ]]; then
+            echo "Tag '$TAG' must be built from $expected_ref, not '$REF_NAME'" >&2
             exit 1
           fi
 
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
@@ -56,3 +68,9 @@ jobs:
           build-args: |
             APP_VERSION=${{ inputs.tag }}
           tags: ${{ secrets.ECR_REPOSITORY_URL }}:${{ inputs.tag }}
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+          # ECR tags are immutable, so the layer cache lives in GitHub's cache instead
+          cache-from: type=gha,scope=${{ github.ref_name }}
+          cache-to: type=gha,mode=max,scope=${{ github.ref_name }}

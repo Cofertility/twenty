@@ -130,4 +130,4 @@ echo
 echo "Built ${release_branch}: ${base} + ${branches[*]}"
 echo "Next:"
 echo "  git push --force-with-lease origin ${release_branch}"
-echo "  then run the 'Cofertility image' workflow on ${release_branch} with tag v${version}-cf.<n>"
+echo "  then run the 'Cofertility image' workflow on ${release_branch} with tag v${version}-cofertility.<n>"
