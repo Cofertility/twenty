@@ -28,8 +28,9 @@ git config alias.cofertility-release '!f() { git show cofertility/infra:cofertil
 Then:
 
 ```bash
+git cofertility-release latest            # latest published upstream release
 git cofertility-release 2.52.0            # twenty/v2.52.0 + cofertility/infra + release-branches
 git cofertility-release 2.52.0 --rebuild  # recreate after updating a feature branch
 ```
 
-The script reads `release-branches` and itself from `cofertility/infra`, so it works from any checkout.
+The script reads `release-branches` and itself from `cofertility/infra`, so it works from any checkout. The full flow, through image build and deploy, is the `cutting-cofertility-release` skill in `.claude/skills/`.
