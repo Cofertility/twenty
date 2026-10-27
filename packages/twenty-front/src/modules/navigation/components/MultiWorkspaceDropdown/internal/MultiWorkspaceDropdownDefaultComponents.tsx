@@ -1,5 +1,6 @@
 import { useAuth } from '@/auth/hooks/useAuth';
 import { availableWorkspacesState } from '@/auth/states/availableWorkspacesState';
+import { isCloudflareAccessSessionState } from '@/auth/states/isCloudflareAccessSessionState';
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
 import { countAvailableWorkspaces } from '@/auth/utils/availableWorkspacesUtils';
 import { isMultiWorkspaceEnabledState } from '@/client-config/states/isMultiWorkspaceEnabledState';
@@ -47,6 +48,9 @@ export const MultiWorkspaceDropdownDefaultComponents = () => {
     countAvailableWorkspaces(availableWorkspaces);
   const { redirectToDefaultDomain } = useRedirectToDefaultDomain();
   const { signOut } = useAuth();
+  const isCloudflareAccessSession = useAtomStateValue(
+    isCloudflareAccessSessionState,
+  );
   const { colorScheme, colorSchemeList } = useColorScheme();
   const supportChat = useAtomStateValue(supportChatState);
   const isSupportChatConfigured =
@@ -109,9 +113,14 @@ export const MultiWorkspaceDropdownDefaultComponents = () => {
                   {t`Create Workspace`}
                 </Dropdown.ActionItem>
               )}
-              <Dropdown.ActionItem startIcon={<IconLogout />} onClick={signOut}>
-                {t`Log out`}
-              </Dropdown.ActionItem>
+              {!isCloudflareAccessSession && (
+                <Dropdown.ActionItem
+                  startIcon={<IconLogout />}
+                  onClick={signOut}
+                >
+                  {t`Log out`}
+                </Dropdown.ActionItem>
+              )}
             </Dropdown.Section>
           </DropdownContent>
         </DropdownRoot>

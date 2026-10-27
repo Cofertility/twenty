@@ -2023,6 +2023,35 @@ export class ConfigVariables {
 
   @ConfigVariablesMetadata({
     group: ConfigVariablesGroup.CLOUDFLARE_CONFIG,
+    description: 'Enable sign-in from the Cloudflare Access JWT header',
+    isEnvOnly: true,
+    type: ConfigVariableType.BOOLEAN,
+  })
+  @IsOptional()
+  CF_ACCESS_ENABLED = false;
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.CLOUDFLARE_CONFIG,
+    description:
+      'Cloudflare Access team domain, bare hostname (e.g. myteam.cloudflareaccess.com)',
+    isEnvOnly: true,
+    type: ConfigVariableType.STRING,
+  })
+  @ValidateIf((env) => env.CF_ACCESS_ENABLED)
+  CF_ACCESS_TEAM_DOMAIN: string;
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.CLOUDFLARE_CONFIG,
+    description:
+      'AUD tag of the Cloudflare Access application protecting Twenty',
+    isEnvOnly: true,
+    type: ConfigVariableType.STRING,
+  })
+  @ValidateIf((env) => env.CF_ACCESS_ENABLED)
+  CF_ACCESS_AUD: string;
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.CLOUDFLARE_CONFIG,
     description:
       'Id to generate value for CNAME record to validate ownership and manage ssl for custom hostname with Cloudflare',
     type: ConfigVariableType.STRING,
