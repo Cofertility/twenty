@@ -1,19 +1,32 @@
 #!/usr/bin/env bash
 # Builds cofertility/v<version> from upstream tag twenty/v<version> plus our branches.
-# Usage: git cofertility-release <version> [--rebuild]
+# Usage: git cofertility-release <version|latest> [--rebuild]
 # Runs in a separate worktree, so the current checkout is never touched.
 set -euo pipefail
 
-version="${1:?usage: release.sh <version, e.g. 2.51.0> [--rebuild]}"
+version="${1:?usage: release.sh <version, e.g. 2.51.0, or latest> [--rebuild]}"
 rebuild="${2:-}"
-base="twenty/v${version}"
-release_branch="cofertility/v${version}"
 infra_branch="cofertility/infra"
-tmp_root="${TMPDIR:-/tmp}"
-worktree="${tmp_root%/}/twenty-release-${version}"
+image_workflow=".github/workflows/cofertility-image.yaml"
 
 git fetch upstream --tags --quiet
 git fetch origin --quiet
+
+if [[ "${version}" == "latest" ]]; then
+  # Upstream tags a version before publishing its release notes; only take published releases
+  version="$(gh release view -R twentyhq/twenty --json tagName --jq .tagName)"
+  version="${version#twenty/v}"
+  [[ "${version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
+    echo "Latest upstream release is not a twenty/vX.Y.Z tag: ${version}" >&2
+    exit 1
+  }
+  echo "Latest upstream release: ${version}"
+fi
+
+base="twenty/v${version}"
+release_branch="cofertility/v${version}"
+tmp_root="${TMPDIR:-/tmp}"
+worktree="${tmp_root%/}/twenty-release-${version}"
 
 git rev-parse --verify --quiet "${base}^{commit}" >/dev/null || {
   echo "Upstream tag ${base} not found" >&2
@@ -96,6 +109,22 @@ for branch in "${branches[@]}"; do
 done
 
 git worktree remove "${worktree}"
+
+# Fork pushes register upstream's workflow files as active; only the image build should run
+if command -v gh >/dev/null; then
+  origin_repo="$(git remote get-url origin | sed -E 's#^(git@github.com:|https://github.com/)##; s#\.git$##')"
+  active="$(gh api "repos/${origin_repo}/actions/workflows" --paginate \
+    --jq ".workflows[] | select(.state == \"active\" and .path != \"${image_workflow}\") | \"\(.id) \(.path)\"" \
+    2>/dev/null || echo "?")"
+  if [[ "${active}" == "?" ]]; then
+    echo "Could not list ${origin_repo} workflows; check that none but the image build are active" >&2
+  elif [[ -n "${active}" ]]; then
+    echo
+    echo "Active workflows on ${origin_repo} besides the image build (disable with"
+    echo "gh api -X PUT repos/${origin_repo}/actions/workflows/<id>/disable):"
+    echo "${active}" | sed 's/^/  /'
+  fi
+fi
 
 echo
 echo "Built ${release_branch}: ${base} + ${branches[*]}"
