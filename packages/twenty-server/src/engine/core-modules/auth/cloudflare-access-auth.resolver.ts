@@ -3,7 +3,7 @@ import { Args, Context, Mutation } from '@nestjs/graphql';
 
 import { isNonEmptyString } from '@sniptt/guards';
 import { type Request } from 'express';
-import { assertIsDefinedOrThrow } from 'twenty-shared/utils';
+import { assertIsDefinedOrThrow, isDefined } from 'twenty-shared/utils';
 
 import { MetadataResolver } from 'src/engine/api/graphql/graphql-config/decorators/metadata-resolver.decorator';
 import {
@@ -53,10 +53,19 @@ export class CloudflareAccessAuthResolver {
 
     const emailDomain = email.split('@')[1] ?? 'unknown';
 
-    const currentWorkspace =
+    const originWorkspace =
       await this.workspaceDomainsService.getWorkspaceByOriginOrDefaultWorkspace(
         origin,
       );
+
+    // Reload with approvedAccessDomains, which checkAccessForSignIn reads.
+    const currentWorkspace = isDefined(originWorkspace)
+      ? await this.authService.findWorkspaceForSignInUp({
+          authProvider: AuthProviderEnum.SSO,
+          email,
+          workspaceId: originWorkspace.id,
+        })
+      : undefined;
 
     try {
       assertIsDefinedOrThrow(

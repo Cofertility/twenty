@@ -21,6 +21,7 @@ describe('CloudflareAccessAuthResolver', () => {
   let resolver: CloudflareAccessAuthResolver;
   const cloudflareAccessService = { verifyRequestOrThrow: jest.fn() };
   const authService = {
+    findWorkspaceForSignInUp: jest.fn(),
     findInvitationForSignInUp: jest.fn(),
     formatUserDataPayload: jest.fn(),
     checkAccessForSignIn: jest.fn(),
@@ -43,6 +44,7 @@ describe('CloudflareAccessAuthResolver', () => {
     workspaceDomainsService.getWorkspaceByOriginOrDefaultWorkspace.mockResolvedValue(
       workspace,
     );
+    authService.findWorkspaceForSignInUp.mockResolvedValue(workspace);
     authService.findInvitationForSignInUp.mockResolvedValue(undefined);
     authService.formatUserDataPayload.mockImplementation(
       (newUserPayload: unknown, existingUser: unknown) => ({
@@ -98,6 +100,25 @@ describe('CloudflareAccessAuthResolver', () => {
       origin: 'sign_in',
     });
     expect(result).toEqual(tokens);
+  });
+
+  it('checks access against the workspace loaded with its approved access domains', async () => {
+    const workspaceWithDomains = { id: 'ws-1', approvedAccessDomains: [] };
+
+    authService.findWorkspaceForSignInUp.mockResolvedValue(
+      workspaceWithDomains,
+    );
+
+    await resolver.signInWithCloudflareAccess('https://x.io', { req });
+
+    expect(authService.findWorkspaceForSignInUp).toHaveBeenCalledWith({
+      authProvider: AuthProviderEnum.SSO,
+      email,
+      workspaceId: 'ws-1',
+    });
+    expect(authService.checkAccessForSignIn).toHaveBeenCalledWith(
+      expect.objectContaining({ workspace: workspaceWithDomains }),
+    );
   });
 
   it('passes a new-user payload with a verified email for unknown users', async () => {
