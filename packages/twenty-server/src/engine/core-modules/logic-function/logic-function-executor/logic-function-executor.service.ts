@@ -42,7 +42,6 @@ import { LogicFunctionDriverFactory } from 'src/engine/core-modules/logic-functi
 import { buildLogicFunctionErrorLogLine } from 'src/engine/core-modules/logic-function/logic-function-executor/utils/build-logic-function-error-log-line.util';
 import { buildLogicFunctionExecutionUsage } from 'src/engine/core-modules/logic-function/logic-function-executor/utils/build-logic-function-execution-usage.util';
 import { buildLogicFunctionRunMetricEvent } from 'src/engine/core-modules/logic-function/logic-function-executor/utils/build-logic-function-run-metric-event.util';
-import { resolveLogicFunctionApiUrl } from 'src/engine/core-modules/logic-function/logic-function-executor/utils/resolve-logic-function-api-url.util';
 import { LogicFunctionPrebuiltWarmUpService } from 'src/engine/core-modules/logic-function/logic-function-prebuilt-warm-up/logic-function-prebuilt-warm-up.service';
 import { SecretEncryptionService } from 'src/engine/core-modules/secret-encryption/secret-encryption.service';
 import {
@@ -67,6 +66,7 @@ import { FlatLogicFunction } from 'src/engine/metadata-modules/logic-function/ty
 import { SubscriptionChannel } from 'src/engine/subscriptions/enums/subscription-channel.enum';
 import { SubscriptionService } from 'src/engine/subscriptions/subscription.service';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
+import { cleanServerUrl } from 'src/utils/clean-server-url';
 import { CustomException } from 'src/utils/custom-exception';
 
 export class LogicFunctionExecutionException extends CustomException<LogicFunctionExecutionExceptionCode> {
@@ -426,12 +426,10 @@ export class LogicFunctionExecutorService {
         : null,
     ]);
 
-    const baseUrl = resolveLogicFunctionApiUrl({
-      logicFunctionApiUrl: this.twentyConfigService.get(
-        'LOGIC_FUNCTION_API_URL',
-      ),
-      serverUrl: this.twentyConfigService.get('SERVER_URL'),
-    });
+    const baseUrl = cleanServerUrl(
+      this.twentyConfigService.get('LOGIC_FUNCTION_API_URL') ??
+        this.twentyConfigService.get('SERVER_URL'),
+    );
     const functionsBaseUrl = await this.buildFunctionsBaseUrl({
       workspaceId,
       flatApplication,
