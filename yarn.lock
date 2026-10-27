@@ -36890,6 +36890,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jose@npm:5.10.0":
+  version: 5.10.0
+  resolution: "jose@npm:5.10.0"
+  checksum: 10c0/e20d9fc58d7e402f2e5f04e824b8897d5579aae60e64cb88ebdea1395311c24537bf4892f7de413fab1acf11e922797fb1b42269bc8fc65089a3749265ccb7b0
+  languageName: node
+  linkType: hard
+
 "jose@npm:^4.15.9":
   version: 4.15.9
   resolution: "jose@npm:4.15.9"
@@ -50467,6 +50474,7 @@ __metadata:
     imapflow: "npm:2.0.2"
     ioredis: "npm:5.10.1"
     jest: "npm:29.7.0"
+    jose: "npm:5.10.0"
     jsdom: "npm:^30.0.1"
     json-schema: "npm:0.4.0"
     jsonwebtoken: "npm:9.0.2"

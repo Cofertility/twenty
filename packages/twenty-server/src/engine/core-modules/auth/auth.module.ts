@@ -14,6 +14,8 @@ import { MicrosoftAPIsAuthController } from 'src/engine/core-modules/auth/contro
 import { MicrosoftAuthController } from 'src/engine/core-modules/auth/controllers/microsoft-auth.controller';
 import { OAuthPropagatorController } from 'src/engine/core-modules/auth/controllers/oauth-propagator.controller';
 import { SsoAuthController } from 'src/engine/core-modules/auth/controllers/sso-auth.controller';
+import { CloudflareAccessAuthResolver } from 'src/engine/core-modules/auth/cloudflare-access-auth.resolver';
+import { CloudflareAccessService } from 'src/engine/core-modules/auth/services/cloudflare-access.service';
 import { AuthSsoService } from 'src/engine/core-modules/auth/services/auth-sso.service';
 import { ConnectedAccountOAuthService } from 'src/engine/core-modules/auth/services/connected-account-oauth.service';
 import { CreateCalendarChannelService } from 'src/engine/core-modules/auth/services/create-calendar-channel.service';
@@ -137,6 +139,8 @@ import { AuthService } from './services/auth.service';
     AuthService,
     SamlAuthStrategy,
     AuthResolver,
+    CloudflareAccessService,
+    CloudflareAccessAuthResolver,
     GoogleAPIsService,
     GoogleApiScopesService,
     GoogleApisServiceAvailabilityService,

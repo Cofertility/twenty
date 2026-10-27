@@ -2,6 +2,7 @@ import { SettingsPath } from 'twenty-shared/types';
 
 import { useAuth } from '@/auth/hooks/useAuth';
 import { currentUserState } from '@/auth/states/currentUserState';
+import { isCloudflareAccessSessionState } from '@/auth/states/isCloudflareAccessSessionState';
 import { currentWorkspaceMemberState } from '@/auth/states/currentWorkspaceMemberState';
 import { billingState } from '@/client-config/states/billingState';
 import { supportChatState } from '@/client-config/states/supportChatState';
@@ -60,6 +61,9 @@ export type SettingsNavigationItem = {
 const useSettingsNavigationItems = (): SettingsNavigationSection[] => {
   const billing = useAtomStateValue(billingState);
   const { signOut } = useAuth();
+  const isCloudflareAccessSession = useAtomStateValue(
+    isCloudflareAccessSessionState,
+  );
   const supportChat = useAtomStateValue(supportChatState);
   const currentWorkspaceMember = useAtomStateValue(currentWorkspaceMemberState);
 
@@ -222,6 +226,7 @@ const useSettingsNavigationItems = (): SettingsNavigationSection[] => {
           onClick: signOut,
           Icon: IconDoorEnter,
           matchSubPages: false,
+          isHidden: isCloudflareAccessSession,
         },
       ],
     },
