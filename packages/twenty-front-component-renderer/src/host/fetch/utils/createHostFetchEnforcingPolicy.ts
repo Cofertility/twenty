@@ -34,7 +34,8 @@ export const createHostFetchEnforcingPolicy = (
       method: requestMethod,
       headers: input.headers,
       body: input.body,
-      credentials: 'omit',
+      // Cofertility: sends the Cloudflare Access cookie; the app's Bearer token still authenticates.
+      credentials: 'same-origin',
       redirect: resolveHostFetchRedirectMode(
         requestMethod,
         input.url,
