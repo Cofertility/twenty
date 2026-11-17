@@ -27,6 +27,7 @@ import { useIsCurrentLocationOnAWorkspace } from '@/domain-manager/hooks/useIsCu
 import { useIsCurrentLocationOnDefaultDomain } from '@/domain-manager/hooks/useIsCurrentLocationOnDefaultDomain';
 import { useMemo } from 'react';
 
+import { CloudflareAccessSignInEffect } from '@/auth/sign-in-up/components/internal/CloudflareAccessSignInEffect';
 import { SignInUpGlobalScopeFormEffect } from '@/auth/sign-in-up/components/internal/SignInUpGlobalScopeFormEffect';
 import { SignInUpSsoExchangeTokenEffect } from '@/auth/sign-in-up/components/internal/SignInUpSsoExchangeTokenEffect';
 import { SignInUpTwoFactorAuthenticationProvision } from '@/auth/sign-in-up/components/internal/SignInUpTwoFactorAuthenticationProvision';
@@ -218,6 +219,7 @@ export const SignInUp = () => {
     </OnboardingLayout>
   ) : (
     <StyledBackground>
+      <CloudflareAccessSignInEffect />
       {signInUpStep === SignInUpStep.EmailVerification ? (
         <StyledAuthContent>
           <EmailVerificationSent email={searchParams.get('email')} />
